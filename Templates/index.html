@@ -1,0 +1,126 @@
+<br /><br />
+<div class="container shadow">
+    <div class="row">
+        <div class="col-sm-12 text-center"><h1>DHARMA</h1></div>
+    </div>
+    <!--<div class="row text-center">
+        <div class="col-sm-12 col-md-4 offset-md-8">
+            <button class="btn btn-success" type="button" data-toggle="modal" data-target="#newZombiModal">Registrar</button>
+        </div>
+    </div>-->
+    <div>
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="home-tab" data-toggle="tab" href="#home" role="tab" aria-controls="home" aria-selected="true">Home</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="table-tab" data-toggle="tab" href="#table" role="tab" aria-controls="table" aria-selected="false">Listado</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="reporte-tab" data-toggle="tab" href="#reporte" role="tab" aria-controls="reporte" aria-selected="false">Reporte</a>
+            </li>
+        </ul>
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="home" role="tabpanel" aria-labelledby="home-tab">
+                <br />
+                <form class="form mx-auto" action="Controller/register.php" method="post">
+                    <div class="form-group col-sm-6">
+                        <label for="codigo">Código:</label>
+                        <input name="codigo" class="form-control" placeholder="4 8 15 16 2342">
+                    </div>
+                    <button type="submit" name="submit" class="btn btn-primary">Registrar</button>
+                </form>
+                <br />
+            </div>
+            <div class="tab-pane fade show" id="table" role="tabpanel" aria-labelledby="table-tab">
+                <br />
+                <form class="form-inline mx-auto">
+                    <label for="estado">Estado:   </label>
+                    <select name="estado" class="form-control input" id="status">
+                        <option value="0" selected>CUALQUIER ESTADO</option>
+                        <option value="SUCCESS" >SUCCESS</option>
+                        <option value="SYSTEM FAILURE" >SYSTEM FAILURE</option>
+                    </select>
+                    <div class="ml-5">
+                        <b># de Registros:</b>
+                        <p id="numZombies" class="d-inline"><!--<?php echo mysqli_num_rows($zombiList); ?>--></p>
+                    </div>
+                </form>
+                <br />
+                <table class="table table-striped"  id="entry-table">
+                    
+                </table>
+            </div>
+            <div class="tab-pane fade" id="reporte" role="tabpanel" aria-labelledby="reporte-tab">
+                <?php foreach($reporte as $key => $value) { ?>
+                <div class="row">
+                    <div class="col-sm-12">
+                        <b><?php echo $key; ?>: </b>
+                        <p class="d-inline"><?php echo $value; ?></p>
+                    </div>
+                </div>
+                <?php } ?>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    
+var genTable=function(data){
+    console.log(data, "asdf");
+    if(data != 'error'){
+        var obj = JSON.parse(data);
+        console.log(obj);
+        var tableInit = '<thead><tr><th scope="col">id</th><th scope="col">Fecha y Hora</th><th scope="col">Entrada</th><th scope="col">Status</th></tr></thead>';
+        $.each(obj, function(key, value){
+//                console.log(value);
+            tableInit = tableInit.concat("<tr><td style='width: 25%;'>" + value.id + "</td>");
+            tableInit = tableInit.concat("<td style='width: 25%;'>" + value.date + "</td>");
+            tableInit = tableInit.concat("<td style='width: 25%;'>" + value.entrada + "</td>");
+            tableInit = tableInit.concat("<td style='width: 25%;'>" + value.status + "</td></tr>");
+            $("#entry-table").html(tableInit);
+            $('#numZombies').html(obj.length)
+        })
+    }else{
+        $("#zombi-table").html("</br>No se encontraron zombies en ese estado");
+        $('#numZombies').html("0")
+    }
+}
+
+$(document).ready(function (e) {
+    $.get("Controller/search.php",{
+            estado : $("#status").val()
+        }, genTable
+         );
+    $('#status').change(function(){
+        $.get("Controller/search.php",{
+            estado : $("#status").val()
+        },
+        genTable
+             );
+    });
+    /*$(".btn").each(function(){
+        var t = $(this);
+        $(this).click(function () {
+            var id = $(this).data('id');
+            var nombre = $(this).data('nombre');
+            console.log($(this).data('id'));
+            $("#idValue").val(id);
+            $("#nameValue").val(nombre);
+        });
+    });*/
+    $('#editModal').on('show.bs.modal', function(e) {
+
+        //get data-id attribute of the clicked element
+        var idZombi = $(e.relatedTarget).data('zombi');
+        var nombre = $(e.relatedTarget).data('nombre');
+
+        //populate the textbox
+        $(e.currentTarget).find('input[name="id"]').val(idZombi);
+        $(e.currentTarget).find('input[name="nombre"]').val(nombre);
+    });
+});
+
+</script>
